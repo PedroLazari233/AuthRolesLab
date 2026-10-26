@@ -1,0 +1,6 @@
+@AuthRolesLab_HostAddress = http://localhost:5198
+
+GET {{AuthRolesLab_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

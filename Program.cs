@@ -1,3 +1,6 @@
+using System.Security.Claims;
+using System.Xml.Linq;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,7 +9,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddAuthentication().AddJwtBearer();
 builder.Services.AddAuthorization(options => {
-    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("admin"));
 });
 
 var app = builder.Build();
@@ -27,5 +30,10 @@ app.MapGet("/public", () => "public");
 app.MapGet("/private", () => "private").RequireAuthorization();
 
 app.MapGet("/admin", () => "admin").RequireAuthorization("AdminOnly");
+
+app.MapGet("/me", (ClaimsPrincipal user) =>
+{
+    return new { Name = user.Identity?.Name, IsAdmin = user.IsInRole("admin"), Claims = user.Claims.Select(c => new { c.Type, c.Value }) };
+}).RequireAuthorization();
 
 app.Run();
